@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  schedule:
+    # Run daily at 08:00 UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      force_version:
+        description: 'Force a specific typos version (e.g. 1.43.5). Leave empty to auto-detect.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-release:
+    name: Check for new typos release and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Get latest typos version
+        id: typos
+        run: |
+          if [ -n "${{ github.event.inputs.force_version }}" ]; then
+            LATEST="${{ github.event.inputs.force_version }}"
+          else
+            LATEST=$(curl -sSf "https://api.github.com/repos/crate-ci/typos/releases/latest" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              | jq -r '.tag_name' | sed 's/^v//')
+          fi
+          echo "version=${LATEST}" >> "$GITHUB_OUTPUT"
+
+      - name: Get current typosVersion from package.json
+        id: current
+        run: |
+          CURRENT=$(jq -r '.typosVersion' package.json)
+          echo "version=${CURRENT}" >> "$GITHUB_OUTPUT"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.typos.outputs.version }}" = "${{ steps.current.outputs.version }}" ]; then
+            echo "up_to_date=true" >> "$GITHUB_OUTPUT"
+            echo "No update needed — typos-bin is already at ${{ steps.current.outputs.version }}"
+          else
+            echo "up_to_date=false" >> "$GITHUB_OUTPUT"
+            echo "Update needed: ${{ steps.current.outputs.version }} → ${{ steps.typos.outputs.version }}"
+          fi
+
+      - name: Bump versions in package.json
+        if: steps.compare.outputs.up_to_date == 'false'
+        run: |
+          NEW_VERSION="${{ steps.typos.outputs.version }}"
+          # Update both the npm package version and the bundled typos version
+          jq --arg v "$NEW_VERSION" '.version = $v | .typosVersion = $v' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Install dependencies
+        if: steps.compare.outputs.up_to_date == 'false'
+        run: npm install --ignore-scripts
+
+      - name: Commit and tag
+        if: steps.compare.outputs.up_to_date == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "${{ steps.typos.outputs.version }}"
+          git tag "v${{ steps.typos.outputs.version }}"
+          git push origin main --tags
+
+      - name: Publish to npm
+        if: steps.compare.outputs.up_to_date == 'false'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

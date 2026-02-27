@@ -1,0 +1,46 @@
+{
+  "name": "@ocular-d/typos-bin",
+  "version": "1.43.5",
+  "typosVersion": "1.43.5",
+  "description": "Binary wrapper for typos — a spell checker for source code",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "index.js"
+  ],
+  "bin": {
+    "typos": "bin/typos"
+  },
+  "scripts": {
+    "postinstall": "node lib/install.js",
+    "test": "node --test test/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svx/typos-bin.git"
+  },
+  "keywords": [
+    "typos",
+    "spell-checker",
+    "spellcheck",
+    "lint",
+    "bin-wrapper"
+  ],
+  "author": "svx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/svx/typos-bin/issues"
+  },
+  "homepage": "https://github.com/svx/typos-bin#readme",
+  "dependencies": {
+    "@xhmikosr/bin-wrapper": "^10.0.0",
+    "package-config": "^5.0.0"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "^1.2.0"
+  }
+}

@@ -1,0 +1,16 @@
+# Development & test files
+test/
+*.test.js
+
+# OpenSpec artifacts
+openspec/
+
+# GitHub configuration
+.github/
+
+# Misc
+.gitignore
+.gitattributes
+*.log
+vendor/
+node_modules/

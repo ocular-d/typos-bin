@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { spawn } from 'node:child_process';
+
+const binName = process.platform === 'win32' ? 'typos.exe' : 'typos';
+const binaryPath = path.join(
+	fileURLToPath(new URL('../vendor/', import.meta.url)),
+	binName,
+);
+
+if (!existsSync(binaryPath)) {
+	process.stderr.write(
+		`[typos-bin] The typos binary was not found at:\n  ${binaryPath}\n\n` +
+		`This usually means the postinstall script was skipped (e.g. via --ignore-scripts).\n` +
+		`Re-run your package manager install without that flag:\n\n` +
+		`  npm install\n` +
+		`  pnpm install\n` +
+		`  yarn\n`,
+	);
+	process.exit(1);
+}
+
+const child = spawn(binaryPath, process.argv.slice(2), { stdio: 'inherit' });
+
+child.on('exit', (code, signal) => {
+	if (signal) {
+		process.kill(process.pid, signal);
+	} else {
+		process.exit(code ?? 0);
+	}
+});
