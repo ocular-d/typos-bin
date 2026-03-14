@@ -10,6 +10,14 @@ on:
         description: 'Force a specific typos version (e.g. 1.43.5). Leave empty to auto-detect.'
         required: false
         default: ''
+      force_publish:
+        description: 'Force publish even if version is already up to date (e.g. to re-publish a failed release).'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 permissions:
   contents: write
@@ -53,7 +61,11 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          if [ "${{ steps.typos.outputs.version }}" = "${{ steps.current.outputs.version }}" ]; then
+          FORCE_PUBLISH="${{ github.event.inputs.force_publish }}"
+          if [ "$FORCE_PUBLISH" = "true" ]; then
+            echo "up_to_date=false" >> "$GITHUB_OUTPUT"
+            echo "Force publish requested — publishing ${{ steps.typos.outputs.version }} regardless of current version"
+          elif [ "${{ steps.typos.outputs.version }}" = "${{ steps.current.outputs.version }}" ]; then
             echo "up_to_date=true" >> "$GITHUB_OUTPUT"
             echo "No update needed — typos-bin is already at ${{ steps.current.outputs.version }}"
           else
@@ -74,7 +86,7 @@ jobs:
         run: npm install --ignore-scripts
 
       - name: Commit and tag
-        if: steps.compare.outputs.up_to_date == 'false'
+        if: steps.compare.outputs.up_to_date == 'false' && github.event.inputs.force_publish != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
