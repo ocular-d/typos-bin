@@ -37,6 +37,6 @@ describe('CLI shim', () => {
 		const { stdout } = await execFileAsync(process.execPath, [binPath, '--version'], {
 			encoding: 'utf8',
 		});
-		assert.match(stdout, /typos \d+\.\d+\.\d+/);
+		assert.match(stdout, /typos(-cli)? \d+\.\d+\.\d+/);
 	});
 });
