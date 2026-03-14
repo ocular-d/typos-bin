@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/svx/typos-bin.git"
+    "url": "git+https://github.com/ocular-d/typos-bin.git"
   },
   "keywords": [
     "typos",
@@ -33,9 +33,9 @@
   "author": "svx",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/svx/typos-bin/issues"
+    "url": "https://github.com/ocular-d/typos-bin/issues"
   },
-  "homepage": "https://github.com/svx/typos-bin#readme",
+  "homepage": "https://github.com/ocular-d/typos-bin#readme",
   "dependencies": {
     "@xhmikosr/bin-wrapper": "^10.0.0",
     "package-config": "^5.0.0"
