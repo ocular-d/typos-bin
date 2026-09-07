@@ -5,7 +5,7 @@
   "description": "Binary wrapper for typos — a spell checker for source code",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "files": [
     "bin/",
@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/ocular-d/typos-bin#readme",
   "dependencies": {
-    "@xhmikosr/bin-wrapper": "^10.0.0",
+    "@xhmikosr/bin-wrapper": "^14.5.1",
     "package-config": "^5.0.0"
   },
   "devDependencies": {

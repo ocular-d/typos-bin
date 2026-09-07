@@ -22,6 +22,8 @@ The correct typos binary for your platform is automatically downloaded during in
 
 **Supported platforms:** macOS (arm64, x64), Linux (arm64, x64)
 
+**Requires:** Node.js 20 or later. Use `@ocular-d/typos-bin@1.50.1` on Node.js 18.
+
 ## Usage
 
 ### CLI
